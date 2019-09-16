@@ -34,7 +34,7 @@
             // lstLog
             // 
             this.lstLog.FormattingEnabled = true;
-            this.lstLog.Location = new System.Drawing.Point(125, 70);
+            this.lstLog.Location = new System.Drawing.Point(108, 113);
             this.lstLog.Name = "lstLog";
             this.lstLog.Size = new System.Drawing.Size(120, 95);
             this.lstLog.TabIndex = 0;
