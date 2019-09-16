@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Timers;
 using Utilities;
 
 namespace MorseCodeToText
@@ -22,12 +23,19 @@ namespace MorseCodeToText
 
         // Preventing spamming of keydowns.
         bool keyReleased = true;
+        // Tracks when to declare a letter finished.
+        bool letterComplete = false;
 
         // String message variables.
         string word;
         string letter;
+
+        // Timer to track space between letters and words.
+        System.Timers.Timer spacingTimer = new System.Timers.Timer(500);
         public Form1()
         {
+            spacingTimer.Elapsed += OnTimedEvent;
+
             gkh.HookedKeys.Add(Keys.Space);
             gkh.KeyDown += new KeyEventHandler(gkh_KeyDown);
             gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
@@ -60,96 +68,113 @@ namespace MorseCodeToText
 
         void interpretLetter()
         {
-            bool addLetter = true;
-            switch (letter)
+            // Checks whever to reset the morseCode letter.
+            bool addedLetter = true;
+
+            if (spacingTimer.Enabled == false)
             {
-                case ".-":
-                    word += "a";
-                    break;
-                case "-...":
-                    word += "b";
-                    break;
-                case "-.-.":
-                    word += "c";
-                    break;
-                case "-..":
-                    word += "d";
-                    break;
-                case ".":
-                    word += "e";
-                    break;
-                case "..-.":
-                    word += "f";
-                    break;
-                case "--.":
-                    word += "g";
-                    break;
-                case "....":
-                    word += "h";
-                    break;
-                case "..":
-                    word += "i";
-                    break;
-                case ".---":
-                    word += "j";
-                    break;
-                case "-.-":
-                    word += "k";
-                    break;
-                case ".-..":
-                    word += "l";
-                    break;
-                case "--":
-                    word += "m";
-                    break;
-                case "-.":
-                    word += "n";
-                    break;
-                case "---":
-                    word += "o";
-                    break;
-                case ".--.":
-                    word += "p";
-                    break;
-                case "--.-":
-                    word += "q";
-                    break;
-                case ".-.":
-                    word += "r";
-                    break;
-                case "...":
-                    word += "s";
-                    break;
-                case "-":
-                    word += "t";
-                    break;
-                case "..-":
-                    word += "u";
-                    break;
-                case "...-":
-                    word += "v";
-                    break;
-                case ".--":
-                    word += "w";
-                    break;
-                case "-..-":
-                    word += "x";
-                    break;
-                case "-.--":
-                    word += "y";
-                    break;
-                case "--..":
-                    word += "z";
-                    break;
-                default:
-                    addLetter = false;
-                    break;
+                spacingTimer.Start();
             }
-            if (addLetter)
+
+            // Check whever it's time to check the letter.
+            if (letterComplete)
             {
-                letter = "";
-                lstLog.Items.Add(word);
+                switch (letter)
+                {
+                    case ".-":
+                        word += "a";
+                        break;
+                    case "-...":
+                        word += "b";
+                        break;
+                    case "-.-.":
+                        word += "c";
+                        break;
+                    case "-..":
+                        word += "d";
+                        break;
+                    case ".":
+                        word += "e";
+                        break;
+                    case "..-.":
+                        word += "f";
+                        break;
+                    case "--.":
+                        word += "g";
+                        break;
+                    case "....":
+                        word += "h";
+                        break;
+                    case "..":
+                        word += "i";
+                        break;
+                    case ".---":
+                        word += "j";
+                        break;
+                    case "-.-":
+                        word += "k";
+                        break;
+                    case ".-..":
+                        word += "l";
+                        break;
+                    case "--":
+                        word += "m";
+                        break;
+                    case "-.":
+                        word += "n";
+                        break;
+                    case "---":
+                        word += "o";
+                        break;
+                    case ".--.":
+                        word += "p";
+                        break;
+                    case "--.-":
+                        word += "q";
+                        break;
+                    case ".-.":
+                        word += "r";
+                        break;
+                    case "...":
+                        word += "s";
+                        break;
+                    case "-":
+                        word += "t";
+                        break;
+                    case "..-":
+                        word += "u";
+                        break;
+                    case "...-":
+                        word += "v";
+                        break;
+                    case ".--":
+                        word += "w";
+                        break;
+                    case "-..-":
+                        word += "x";
+                        break;
+                    case "-.--":
+                        word += "y";
+                        break;
+                    case "--..":
+                        word += "z";
+                        break;
+                    default:
+                        addedLetter = false;
+                        break;
+                }
+                if (addedLetter)
+                {
+                    letter = "";
+                    lstLog.Items.Add(word);
+                }
             }
+        }
+
+        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            letterComplete = true;
+            spacingTimer.Stop();
         }
 
         /// <summary>
@@ -161,7 +186,6 @@ namespace MorseCodeToText
         {
             endPress = DateTime.Now;
             TimeSpan difference = endPress - startPress;
-            lstLog.Items.Add("Up\t" + e.KeyCode.ToString());
             keyReleased = true;
             ditOrDah(difference);
             e.Handled = true;
@@ -177,7 +201,6 @@ namespace MorseCodeToText
             if (keyReleased)
             {
                 startPress = DateTime.Now;
-                lstLog.Items.Add("Down\t" + e.KeyCode.ToString());
                 keyReleased = false;
                 e.Handled = true;
             }
